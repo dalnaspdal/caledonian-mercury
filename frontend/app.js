@@ -209,7 +209,7 @@ function renderEmptyState() {
 
 function renderStoryCard(story) {
   const card = document.createElement('div');
-  card.className = 'news-card';
+  card.className = `news-card category-${story.category ? story.category.toLowerCase() : 'general'}`;
   card.setAttribute('data-id', story.id);
   card.style.height = "100%";
   
@@ -233,8 +233,8 @@ function renderStoryCard(story) {
     }
   }
   
-  // Format snippet
-  const snippet = story.content_text ? story.content_text.substring(0, 250) + "..." : "No text extracted.";
+  // Format snippet (strictly limit to prevent scrolling on card)
+  const snippet = story.content_text ? story.content_text.substring(0, 130) + "..." : "No text extracted.";
   
   // Curation UI check
   const isCurationAllowed = currentUser.tier === "Monitor" || currentUser.tier === "Trustee";
@@ -258,21 +258,42 @@ function renderStoryCard(story) {
     <img src="${bgImage}" class="card-bg-image" loading="lazy" alt="News Image">
     <div class="card-overlay"></div>
     
+    <!-- Top Watermark Source -->
+    <div class="card-source-watermark">
+      <span>🏛️</span>
+      <span>${story.source}</span>
+    </div>
+    
     <!-- Gesture Hints Overlay -->
     <div class="swipe-indicator swipe-left">✕</div>
     <div class="swipe-indicator swipe-right">✓</div>
     
-    <div class="card-details">
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px;">
-        <span class="card-category-badge">${story.category}</span>
+    <!-- Right-Side Floating Actions Sidebar -->
+    <div class="card-sidebar">
+      <div class="vote-widget" data-id="${story.id}" style="display: flex; flex-direction: column; align-items: center; gap: 14px;">
+        <button class="sidebar-action vote-btn vote-up ${localStorage.getItem('vote_' + story.id) === 'up' ? 'voted' : ''}" data-vote="up" title="Upvote">
+          <div class="action-circle">▲</div>
+          <span class="action-label vote-score">${story.score || 0}</span>
+        </button>
         
-        <!-- Vote Widget -->
-        <div class="vote-widget" style="display: inline-flex; align-items: center; background: rgba(0,0,0,0.4); border-radius: 20px; padding: 4px 8px; gap: 6px; border: 1px solid rgba(255,255,255,0.1); margin-top: -5px;" data-id="${story.id}">
-          <button class="vote-btn vote-up ${localStorage.getItem('vote_' + story.id) === 'up' ? 'voted' : ''}" data-vote="up" style="background: none; border: none; color: ${localStorage.getItem('vote_' + story.id) === 'up' ? '#28a745' : 'rgba(255,255,255,0.6)'}; font-size: 0.85rem; cursor: pointer; padding: 0 4px; outline: none; transition: transform 0.1s ease;">▲</button>
-          <span class="vote-score" style="color: #fff; font-size: 0.8rem; font-weight: bold; min-width: 14px; text-align: center;">${story.score || 0}</span>
-          <button class="vote-btn vote-down ${localStorage.getItem('vote_' + story.id) === 'down' ? 'voted' : ''}" data-vote="down" style="background: none; border: none; color: ${localStorage.getItem('vote_' + story.id) === 'down' ? '#dc3545' : 'rgba(255,255,255,0.6)'}; font-size: 0.85rem; cursor: pointer; padding: 0 4px; outline: none; transition: transform 0.1s ease;">▼</button>
-        </div>
+        <button class="sidebar-action vote-btn vote-down ${localStorage.getItem('vote_' + story.id) === 'down' ? 'voted' : ''}" data-vote="down" title="Downvote">
+          <div class="action-circle">▼</div>
+        </button>
       </div>
+      
+      <button class="sidebar-action" data-action="intel" title="Read Opinions / Intel">
+        <div class="action-circle">💬</div>
+        <span class="action-label">Opinions</span>
+      </button>
+      
+      <button class="sidebar-action" data-action="share" title="Share link">
+        <div class="action-circle">🔗</div>
+        <span class="action-label">Share</span>
+      </button>
+    </div>
+    
+    <div class="card-details">
+      <span class="card-category-badge">${story.category}</span>
       <h2 class="card-title">${story.title}</h2>
       
       <div class="card-meta">
@@ -286,7 +307,7 @@ function renderStoryCard(story) {
       <p class="card-snippet">${snippet}</p>
       
       <div class="card-actions-wrapper">
-        <button class="read-more-btn" data-action="expand">Full Story</button>
+        <button class="read-more-btn" data-action="expand">Full Story 📖</button>
         ${curateButtonsHTML}
       </div>
     </div>
@@ -550,6 +571,9 @@ function setupEventListeners() {
   document.getElementById('close-drawer-btn').addEventListener('click', () => {
     document.getElementById('intel-drawer').classList.remove('open');
   });
+
+  // Close Reader Overlay
+  document.getElementById('reader-close-btn').addEventListener('click', closeReaderOverlay);
   
   // Delegate clicks on Feed Container cards (read full content / actions)
   document.getElementById('feed-container').addEventListener('click', (e) => {
@@ -577,18 +601,19 @@ function setupEventListeners() {
     const story = card.storyData;
     
     if (action === "expand") {
-      // Toggle snippet to full content text simple extension
-      const snippetEl = card.querySelector('.card-snippet');
-      const isExpanded = card.classList.toggle('expanded');
-      
-      if (isExpanded) {
-        snippetEl.textContent = card.storyText || "No text available.";
-        snippetEl.style.maxHeight = '300px';
-        target.textContent = "Collapse";
+      openReaderOverlay(story);
+    } else if (action === "share") {
+      e.stopPropagation();
+      if (navigator.share) {
+        navigator.share({
+          title: story.title,
+          text: `Caledonian Mercury: ${story.title}`,
+          url: story.url
+        }).catch(err => console.log('Share error:', err));
       } else {
-        snippetEl.textContent = (card.storyText || "").substring(0, 250) + "...";
-        snippetEl.style.maxHeight = '120px';
-        target.textContent = "Full Story";
+        navigator.clipboard.writeText(story.url)
+          .then(() => alert("Story link copied to clipboard!"))
+          .catch(err => console.error("Clipboard write failed:", err));
       }
     } else if (action === "accept") {
       updateStoryStatus(storyId, 'accepted');
@@ -785,8 +810,20 @@ function handleVote(storyId, voteType, widgetEl) {
   scoreEl.textContent = newScore;
   
   const newVote = localStorage.getItem(key);
-  upEl.style.color = newVote === 'up' ? '#28a745' : 'rgba(255,255,255,0.6)';
-  downEl.style.color = newVote === 'down' ? '#dc3545' : 'rgba(255,255,255,0.6)';
+  if (upEl && downEl) {
+    if (newVote === 'up') {
+      upEl.classList.add('voted');
+      downEl.classList.remove('voted');
+    } else if (newVote === 'down') {
+      downEl.classList.add('voted');
+      upEl.classList.remove('voted');
+    } else {
+      upEl.classList.remove('voted');
+      downEl.classList.remove('voted');
+    }
+    upEl.style.color = newVote === 'up' ? '#10b981' : 'rgba(255,255,255,0.6)';
+    downEl.style.color = newVote === 'down' ? '#ef4444' : 'rgba(255,255,255,0.6)';
+  }
   
   const docRef = doc(db, "stories", storyId);
   updateDoc(docRef, {
@@ -974,3 +1011,64 @@ function cancelMonitorQuiz() {
   // Restore active identity view to current user tier
   updateProfileUI();
 }
+
+function openReaderOverlay(story) {
+  const overlay = document.getElementById('reader-overlay');
+  const titleEl = document.getElementById('reader-header-title');
+  const bodyEl = document.getElementById('reader-body');
+  const progressBar = document.getElementById('reader-progress-bar');
+  
+  titleEl.textContent = story.source || "Story Reader";
+  progressBar.style.width = '0%';
+  
+  // Format Date
+  let dateStr = "No Date";
+  if (story.published_date) {
+    try {
+      const d = new Date(story.published_date);
+      dateStr = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    } catch {
+      dateStr = story.published_date;
+    }
+  }
+  
+  const defaultImages = {
+    'Politics': 'https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?w=600&fit=crop&q=80',
+    'Business': 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&fit=crop&q=80',
+    'Culture': 'https://images.unsplash.com/photo-1472653423608-f9b208573136?w=600&fit=crop&q=80',
+    'General': 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=600&fit=crop&q=80'
+  };
+  const imgUrl = story.lead_image_url || defaultImages[story.category] || defaultImages['General'];
+  
+  bodyEl.innerHTML = `
+    ${imgUrl ? `<img src="${imgUrl}" class="reader-image" alt="Article Image">` : ''}
+    <div class="reader-meta">
+      <span class="card-category-badge">${story.category}</span>
+      <span class="meta-divider"></span>
+      <span>${story.source}</span>
+      <span class="meta-divider"></span>
+      <span>${story.author || 'Staff Writer'}</span>
+      <span class="meta-divider"></span>
+      <span>${dateStr}</span>
+    </div>
+    <h1 class="reader-headline">${story.title}</h1>
+    <div class="reader-text">${story.content_text || 'No content text available.'}</div>
+  `;
+  
+  overlay.classList.add('open');
+  bodyEl.scrollTop = 0;
+  
+  bodyEl.onscroll = () => {
+    const scrollTotal = bodyEl.scrollHeight - bodyEl.clientHeight;
+    if (scrollTotal > 0) {
+      const progress = (bodyEl.scrollTop / scrollTotal) * 100;
+      progressBar.style.width = `${progress}%`;
+    }
+  };
+}
+
+function closeReaderOverlay() {
+  const overlay = document.getElementById('reader-overlay');
+  overlay.classList.remove('open');
+}
+
