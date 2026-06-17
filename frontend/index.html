@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Caledonian Mercury - Mobile Feed</title>
+  <!-- PWA meta tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/jpeg" href="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=192&h=192&fit=crop&q=80">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Plus+Jakarta+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- Style Sheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Background Noise & Gradients -->
+  <div class="glow-bg"></div>
+  
+  <!-- App Shell -->
+  <div class="app-container">
+    <!-- Top Nav Bar -->
+    <header class="app-header">
+      <div class="header-logo">
+        <span class="logo-accent">C</span>M
+      </div>
+      
+      <!-- Category Tabs (Politics, Business, Culture) -->
+      <nav class="category-tabs">
+        <button class="tab-btn active" data-category="all">All</button>
+        <button class="tab-btn" data-category="politics">Politics</button>
+        <button class="tab-btn" data-category="business">Business</button>
+        <button class="tab-btn" data-category="culture">Culture</button>
+      </nav>
+      
+      <!-- User / Profile Profile Icon -->
+      <button id="profile-btn" class="header-profile-btn" title="Choose Identity">
+        <span id="profile-avatar">👤</span>
+      </button>
+    </header>
+    
+    <!-- Sort Toggle Subheader -->
+    <div class="sort-bar" style="display: flex; align-items: center; justify-content: center; gap: 15px; padding: 8px 15px; background: rgba(0, 0, 0, 0.2); border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.85rem; backdrop-filter: blur(10px); z-index: 10;">
+      <span style="color: rgba(255, 255, 255, 0.5);">Feed Curation:</span>
+      <button id="sort-newest-btn" class="sort-btn active" data-sort="newest" style="padding: 4px 10px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: #fff; font-size: 0.8rem; cursor: pointer; transition: all 0.2s;">Latest</button>
+      <button id="sort-top-btn" class="sort-btn" data-sort="top" style="padding: 4px 10px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: #fff; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; opacity: 0.5;">Top Rated</button>
+    </div>
+    
+    <!-- Feed Container: Snaps vertically (snap-y mandatory) -->
+    <main id="feed-container" class="feed-container">
+      <!-- Loading Skeleton (Initial state) -->
+      <div class="feed-skeleton">
+        <div class="skeleton-card">
+          <div class="skeleton-img"></div>
+          <div class="skeleton-title"></div>
+          <div class="skeleton-meta"></div>
+          <div class="skeleton-text"></div>
+        </div>
+      </div>
+    </main>
+    
+    <!-- Bottom Nav Tab Bar -->
+    <nav class="bottom-nav">
+      <button class="nav-item active" data-status="staged">
+        <span class="nav-icon">📥</span>
+        <span class="nav-label">Staged</span>
+      </button>
+      <button class="nav-item" data-status="accepted">
+        <span class="nav-icon">⏳</span>
+        <span class="nav-label">Accepted</span>
+      </button>
+      <button class="nav-item" data-status="processed">
+        <span class="nav-icon">💡</span>
+        <span class="nav-label">Processed</span>
+      </button>
+      <button class="nav-item" data-status="rejected">
+        <span class="nav-icon">❌</span>
+        <span class="nav-label">Rejected</span>
+      </button>
+    </nav>
+  </div>
+  
+  <!-- Modal: Curation/NLP Intelligence Drawer (Bottom-sheet) -->
+  <div id="intel-drawer" class="bottom-sheet">
+    <div class="sheet-handle-container">
+      <div class="sheet-handle"></div>
+    </div>
+    
+    <div class="sheet-content">
+      <h2 id="drawer-story-title">Story Intelligence</h2>
+      <p id="drawer-story-meta">Story metadata goes here</p>
+      
+      <div class="drawer-sections">
+        <!-- Sentiment Section -->
+        <div class="drawer-section">
+          <h3>Sentiment Polarity</h3>
+          <div class="sentiment-indicator-wrapper">
+            <span class="sentiment-label val-neg">Negative</span>
+            <div class="sentiment-bar-bg">
+              <div id="sentiment-indicator" class="sentiment-needle" style="left: 50%;"></div>
+            </div>
+            <span class="sentiment-label val-pos">Positive</span>
+          </div>
+          <div id="sentiment-val-text" class="sentiment-score-text">0.00</div>
+        </div>
+        
+        <!-- JTI Metrics Section -->
+        <div class="drawer-section">
+          <h3>Journalism Trust Initiative (JTI) Dials</h3>
+          <div class="jti-grid">
+            <div class="jti-card">
+              <span class="jti-title">Author Attribution</span>
+              <div class="jti-progress-ring">
+                <svg viewBox="0 0 36 36">
+                  <path class="ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                  <path id="jti-author-ring" class="ring" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                </svg>
+                <div id="jti-author-text" class="ring-text">0%</div>
+              </div>
+            </div>
+            
+            <div class="jti-card">
+              <span class="jti-title">Date Transparency</span>
+              <div class="jti-progress-ring">
+                <svg viewBox="0 0 36 36">
+                  <path class="ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                  <path id="jti-date-ring" class="ring" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                </svg>
+                <div id="jti-date-text" class="ring-text">0%</div>
+              </div>
+            </div>
+            
+            <div class="jti-card">
+              <span class="jti-title">Content Depth</span>
+              <div class="jti-progress-ring">
+                <svg viewBox="0 0 36 36">
+                  <path class="ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                  <path id="jti-depth-ring" class="ring" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                </svg>
+                <div id="jti-depth-text" class="ring-text">0%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Named Entities Section -->
+        <div class="drawer-section">
+          <h3>Top Extracted Named Entities</h3>
+          <div id="entities-container" class="entities-tag-list">
+            <span class="no-entities">No entities found.</span>
+          </div>
+        </div>
+        
+        <!-- Citizen Opinions Section -->
+        <div class="drawer-section" style="margin-top: 25px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 20px;">
+          <h3>Citizen Opinions & Analysis</h3>
+          <div id="opinions-container" style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px; max-height: 250px; overflow-y: auto;">
+            <span class="no-opinions" style="font-size: 0.85rem; color: rgba(255,255,255,0.4);">No community opinions submitted yet. Be the first to analyze!</span>
+          </div>
+          
+          <!-- Add opinion form -->
+          <div class="opinion-form-container" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.08);">
+            <h4 style="font-size: 0.9rem; color: #fff; margin-bottom: 8px;">Write a Micro-Opinion</h4>
+            <form id="submit-opinion-form">
+              <input type="text" id="opinion-title-input" placeholder="Opinion Title (e.g. A Devastating Blow to Holyrood)" required style="width: 100%; padding: 8px 12px; margin-bottom: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.3); color: #fff; font-size: 0.85rem; box-sizing: border-box; outline: none;">
+              <textarea id="opinion-content-input" placeholder="Write your structured analysis here... (minimum 100 characters to prevent low-quality spam)" required minlength="100" style="width: 100%; height: 80px; padding: 8px 12px; margin-bottom: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.3); color: #fff; font-size: 0.85rem; resize: none; box-sizing: border-box; outline: none; font-family: inherit;"></textarea>
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span id="char-counter" style="font-size: 0.75rem; color: rgba(255,255,255,0.4);">0 / 100 characters minimum</span>
+                <button type="submit" style="padding: 8px 16px; border-radius: 6px; border: none; background: #28a745; color: #fff; font-weight: 600; cursor: pointer; font-size: 0.85rem;">Submit Opinion</button>
+              </div>
+            </form>
+            <p id="submit-opinion-status" style="font-size: 0.75rem; color: #28a745; margin-top: 5px; display: none;">✔ Opinion published successfully!</p>
+          </div>
+        </div>
+      </div>
+      
+      <button id="close-drawer-btn" class="drawer-close-btn">Close Panel</button>
+    </div>
+  </div>
+  
+  <!-- Identity / Subscriber Selector Modal -->
+  <div id="identity-modal" class="modal-overlay">
+    <div class="modal-content">
+      <h2>Select Identity (Subscriber Tier)</h2>
+      <p>Simulating roles for Caledonian Mercury & MMM Platform curation.</p>
+      
+      <div class="identity-list">
+        <button class="identity-item" data-tier="Trustee">
+          <div class="identity-name">📰 Trustee (C-Suite Admin)</div>
+          <div class="identity-desc">Full access to curate, reject, inspect raw code and configure sync variables.</div>
+        </button>
+        <button class="identity-item" data-tier="Monitor">
+          <div class="identity-name">🕵️ Monitor (Senior Editor)</div>
+          <div class="identity-desc">Can curation-approve / reject stories and view detailed JTI charts.</div>
+        </button>
+        <button class="identity-item" data-tier="Analyst">
+          <div class="identity-name">📊 Analyst (Researcher)</div>
+          <div class="identity-desc">Can view all processed intelligence and tag stories, but cannot write.</div>
+        </button>
+        <button class="identity-item active" data-tier="Verified Citizen">
+          <div class="identity-name">🤝 Verified Citizen (Reader)</div>
+          <div class="identity-desc">Read access to processed Scottish politics, business, and culture.</div>
+        </button>
+      </div>
+      
+      <!-- Suggest a Story Link -->
+      <div style="border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: 20px; padding-top: 15px;">
+        <h3 style="font-size: 0.95rem; margin-bottom: 8px; color: #fff;">Suggest a Story Link</h3>
+        <p style="font-size: 0.75rem; color: rgba(255,255,255,0.4); margin-bottom: 10px;">Paste a Scottish news URL. It will be scraped and auto-staged for editorial review.</p>
+        <form id="submit-story-form" style="display: flex; gap: 8px; margin-bottom: 5px;">
+          <input type="url" id="submit-story-url" placeholder="https://www.scotsman.com/news/..." required style="flex: 1; padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.3); color: #fff; font-size: 0.85rem; outline: none;">
+          <button type="submit" style="padding: 8px 14px; border-radius: 6px; border: none; background: #007bff; color: #fff; font-weight: 600; cursor: pointer; font-size: 0.85rem; white-space: nowrap;">Submit URL</button>
+        </form>
+        <p id="submit-story-status" style="font-size: 0.75rem; color: #28a745; margin-top: 5px; display: none;">✔ Link submitted to curation queue!</p>
+      </div>
+      
+      <!-- Direct APK Download for Testers -->
+      <div style="border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: 20px; padding-top: 15px; text-align: center;">
+        <p style="font-size: 0.85rem; color: rgba(255, 255, 255, 0.5); margin-bottom: 5px;">Direct Android installation:</p>
+        <p style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.35); margin-bottom: 10px;">Download, unzip, and tap the APK to install.</p>
+        <a href="caledonian-mercury.zip" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; padding: 12px 20px; border: 1px solid rgba(255, 255, 255, 0.15); width: auto; color: #fff; border-radius: 8px; background: rgba(255, 255, 255, 0.05); font-weight: 600; transition: all 0.2s ease; font-size: 0.9rem;">
+          <span>📦</span> Download Android App (.zip)
+        </a>
+      </div>
+      
+      <div class="modal-actions">
+        <button id="close-identity-btn" class="modal-primary-btn">Save Identity</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Scripts -->
+  <script type="module" src="app.js"></script>
+</body>
+</html>

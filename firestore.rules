@@ -1,0 +1,28 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Stories collection
+    match /stories/{storyId} {
+      allow read: if true;
+      allow create, update, delete: if request.auth != null;
+    }
+    
+    // Opinions collection
+    match /opinions/{opinionId} {
+      allow read: if true;
+      allow create, update, delete: if request.auth != null;
+    }
+
+    // Submissions collection
+    match /submissions/{submissionId} {
+      allow create, read: if request.auth != null;
+    }
+    
+    // Users collection (mmm-style profiles)
+    match /users/{userId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
