@@ -35,6 +35,7 @@ let currentUser = {
 let activeStatusFilter = "staged"; // staged, accepted, processed, rejected
 let activeCategoryFilter = "all"; // all, politics, business, culture
 let activeSortOrder = "newest"; // newest, top
+let activeTimeFilter = "all"; // all, 24h, 3d
 let unsubscribeFeed = null;
 let unsubscribeOpinions = null;
 let touchStartX = 0;
@@ -166,12 +167,43 @@ function loadFeed() {
       return;
     }
     
+    let renderedCount = 0;
+    const now = new Date();
+    
     snapshot.forEach((doc) => {
       const story = doc.data();
       story.id = doc.id;
+      
+      // Client-Side Time Recency Filter
+      if (activeTimeFilter !== "all") {
+        let storyDate = null;
+        if (story.created_at) {
+          storyDate = story.created_at.seconds ? new Date(story.created_at.seconds * 1000) : new Date(story.created_at);
+        } else if (story.published_date) {
+          storyDate = new Date(story.published_date);
+        }
+        
+        if (storyDate && !isNaN(storyDate.getTime())) {
+          const ageMs = now - storyDate;
+          const ageHours = ageMs / (1000 * 60 * 60);
+          if (activeTimeFilter === "24h" && ageHours > 24) {
+            return;
+          }
+          if (activeTimeFilter === "3d" && ageHours > 72) {
+            return;
+          }
+        }
+      }
+      
       const cardElement = renderStoryCard(story);
       feedContainer.appendChild(cardElement);
+      renderedCount++;
     });
+    
+    if (renderedCount === 0) {
+      renderEmptyState();
+      return;
+    }
     
     // Add an end of feed placeholder card
     const endCard = document.createElement('div');
@@ -652,6 +684,21 @@ function setupEventListeners() {
       loadFeed();
     });
   }
+
+  // Time Window Filter Buttons
+  document.querySelectorAll('.time-filter-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      document.querySelectorAll('.time-filter-btn').forEach(b => {
+        b.classList.remove('active');
+        b.style.opacity = '0.5';
+      });
+      const activeBtn = e.currentTarget;
+      activeBtn.classList.add('active');
+      activeBtn.style.opacity = '1';
+      activeTimeFilter = activeBtn.getAttribute('data-time');
+      loadFeed();
+    });
+  });
 
   // Suggest a Story Link Form
   const submitStoryForm = document.getElementById('submit-story-form');

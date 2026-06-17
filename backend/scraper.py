@@ -2,6 +2,9 @@ import feedparser
 import trafilatura
 import json
 import httpx
+import time
+import calendar
+from datetime import datetime, timezone
 from db_manager import save_story, init_db
 
 SOURCES = {
@@ -131,6 +134,17 @@ def scrape_feeds():
             for entry in feed.entries[:10]:  # Limit to 10 latest for now
                 url = entry.link
                 title = entry.title
+                
+                # Skip items older than 3 days
+                pub_parsed = entry.get('published_parsed')
+                if pub_parsed:
+                    pub_timestamp = calendar.timegm(pub_parsed)
+                    pub_dt = datetime.fromtimestamp(pub_timestamp, tz=timezone.utc)
+                    now_dt = datetime.now(timezone.utc)
+                    age_days = (now_dt - pub_dt).days
+                    if age_days > 3:
+                        print(f"  Skipping stale story: {title[:50]} ({age_days} days old)")
+                        continue
                 
                 # Fetch full content
                 print(f"  Extracting: {title[:50]}...")
