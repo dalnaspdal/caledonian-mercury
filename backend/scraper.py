@@ -14,6 +14,46 @@ HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
 }
 
+def clean_content(text):
+    if not text:
+        return ""
+        
+    trash_patterns = [
+        r"(?i)cookie policy",
+        r"(?i)privacy policy",
+        r"(?i)all rights reserved",
+        r"(?i)subscribe to our newsletter",
+        r"(?i)follow us on (twitter|facebook|instagram)",
+        r"(?i)read more (here|on our website)",
+        r"(?i)sign up to (our|the) newsletter",
+        r"(?i)this article was originally published",
+        r"(?i)click here to read",
+        r"(?i)ad blocker detected",
+        r"(?i)advertisement",
+        r"(?i)sponsored content",
+        r"(?i)share this article",
+        r"(?i)terms of use",
+        r"(?i)terms and conditions",
+    ]
+    
+    cleaned_lines = []
+    for line in text.split("\n"):
+        line_strip = line.strip()
+        if not line_strip:
+            continue
+            
+        import re
+        is_trash = False
+        for pattern in trash_patterns:
+            if re.search(pattern, line_strip):
+                is_trash = True
+                break
+                
+        if not is_trash:
+            cleaned_lines.append(line_strip)
+            
+    return "\n\n".join(cleaned_lines)
+
 def classify_story(title, content):
     title_lower = title.lower() if title else ""
     content_lower = content.lower() if content else ""
@@ -75,7 +115,9 @@ def scrape_feeds():
                         if result:
                             data = json.loads(result)
                             
-                            category = classify_story(data.get('title') or title, data.get('text'))
+                            raw_text = data.get('text')
+                            cleaned = clean_content(raw_text)
+                            category = classify_story(data.get('title') or title, cleaned)
                             story_data = {
                                 'source': source_name,
                                 'url': url,
@@ -83,7 +125,7 @@ def scrape_feeds():
                                 'author': data.get('author'),
                                 'published_date': data.get('date') or entry.get('published'),
                                 'lead_image_url': data.get('image'),
-                                'content_text': data.get('text'),
+                                'content_text': cleaned,
                                 'category': category
                             }
                             
@@ -114,7 +156,9 @@ def scrape_single_url(url):
                 domain = urlparse(url).netloc
                 source_name = domain.replace("www.", "")
                 
-                category = classify_story(data.get('title') or "", data.get('text') or "")
+                raw_text = data.get('text')
+                cleaned = clean_content(raw_text)
+                category = classify_story(data.get('title') or "", cleaned)
                 
                 return {
                     'source': source_name,
@@ -123,7 +167,7 @@ def scrape_single_url(url):
                     'author': data.get('author'),
                     'published_date': data.get('date'),
                     'lead_image_url': data.get('image'),
-                    'content_text': data.get('text'),
+                    'content_text': cleaned,
                     'category': category
                 }
             else:

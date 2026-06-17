@@ -60,3 +60,41 @@ self.addEventListener('fetch', (e) => {
     })
   );
 });
+
+self.addEventListener('push', (e) => {
+  let data = { title: 'Caledonian Mercury', body: 'New citizen-curated story published!' };
+  if (e.data) {
+    try {
+      data = e.data.json();
+    } catch (err) {
+      data.body = e.data.text();
+    }
+  }
+  
+  const options = {
+    body: data.body,
+    icon: '/manifest.json',
+    badge: '/manifest.json',
+    data: { url: data.url || '/' }
+  };
+  
+  e.waitUntil(
+    self.registration.showNotification(data.title, options)
+  );
+});
+
+self.addEventListener('notificationclick', (e) => {
+  e.notification.close();
+  e.waitUntil(
+    clients.matchAll({ type: 'window' }).then((clientList) => {
+      for (const client of clientList) {
+        if (client.url === e.notification.data.url && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      if (clients.openWindow) {
+        return clients.openWindow(e.notification.data.url);
+      }
+    })
+  );
+});

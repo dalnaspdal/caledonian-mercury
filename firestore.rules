@@ -11,7 +11,14 @@ service cloud.firestore {
     // Opinions collection
     match /opinions/{opinionId} {
       allow read: if true;
-      allow create, update, delete: if request.auth != null;
+      allow create: if request.auth != null 
+                    && request.resource.data.content is string 
+                    && request.resource.data.content.size() >= 100
+                    && request.resource.data.title is string
+                    && request.resource.data.title.size() >= 5
+                    && !request.resource.data.content.matches('(?i).*(fuck|shit|cunt|bastard|retard|scum|idiot).*')
+                    && !request.resource.data.title.matches('(?i).*(fuck|shit|cunt|bastard|retard|scum|idiot).*');
+      allow update, delete: if request.auth != null;
     }
 
     // Submissions collection

@@ -85,7 +85,7 @@ function syncUserProfileToFirestore() {
 
 function updateProfileUI() {
   const avatarSpan = document.getElementById('profile-avatar');
-  if (currentUser.tier === "Trustee") avatarSpan.textContent = "👑";
+  if (currentUser.tier === "Trustee") avatarSpan.textContent = "🏛️";
   else if (currentUser.tier === "Monitor") avatarSpan.textContent = "🕵️";
   else if (currentUser.tier === "Analyst") avatarSpan.textContent = "📊";
   else avatarSpan.textContent = "👤";
@@ -509,11 +509,17 @@ function setupEventListeners() {
   // Identity Option clicking
   document.querySelectorAll('.identity-item').forEach(item => {
     item.addEventListener('click', (e) => {
-      document.querySelectorAll('.identity-item').forEach(i => i.classList.remove('active'));
       const activeItem = e.currentTarget;
+      const selectedTier = activeItem.getAttribute('data-tier');
+      
+      if ((selectedTier === "Monitor" || selectedTier === "Trustee") && !localStorage.getItem('mercury_is_qualified_monitor')) {
+        showMonitorQuiz(selectedTier);
+        return;
+      }
+      
+      document.querySelectorAll('.identity-item').forEach(i => i.classList.remove('active'));
       activeItem.classList.add('active');
       
-      const selectedTier = activeItem.getAttribute('data-tier');
       currentUser.tier = selectedTier;
       
       // Standard usernames mapping to tiers
@@ -719,7 +725,14 @@ function setupEventListeners() {
 function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js')
-      .then(reg => console.log('Service Worker registered successfully:', reg.scope))
+      .then(reg => {
+        console.log('Service Worker registered successfully:', reg.scope);
+        if (window.Notification && Notification.permission === 'default') {
+          Notification.requestPermission().then(permission => {
+            console.log('Notification permission status:', permission);
+          });
+        }
+      })
       .catch(err => console.log('Service Worker registration failed:', err));
   }
 }
@@ -835,4 +848,129 @@ function loadOpinions(storyId) {
     console.error("Opinions load failed:", err);
     opinionsContainer.innerHTML = '<span class="no-opinions" style="color: rgba(255,255,255,0.4);">Failed to load opinions.</span>';
   });
+}
+
+const QUIZ_QUESTIONS = [
+  {
+    id: 1,
+    question: "1. An article titled 'Holyrood is Doomed! Secret Funding Cuts Revealed!' is submitted. How should a Monitor handle this?",
+    options: [
+      "Approve it immediately to increase feed engagement.",
+      "Reject or flag for sensationalism, rephrasing the title to be neutral and factual.",
+      "Accept it, but flag it as positive sentiment."
+    ],
+    correct: 1
+  },
+  {
+    id: 2,
+    question: "2. A citizen suggests a paywalled story link. What is the correct protocol?",
+    options: [
+      "Reject it instantly since not all users can read it.",
+      "Approve it only if it supports a particular political party.",
+      "Accept it if it is a high-quality source, as the scraper extracts the full text and Stages it for review."
+    ],
+    correct: 2
+  },
+  {
+    id: 3,
+    question: "3. What is the primary purpose of our 100-character Citizen Micro-Opinions?",
+    options: [
+      "To restrict free speech and exclude low-income users.",
+      "To increase the friction for low-effort toxicity, ensuring posts contribute structured analysis.",
+      "To boost website ad revenues."
+    ],
+    correct: 1
+  }
+];
+
+let activeQuizTier = null;
+
+function showMonitorQuiz(targetTier) {
+  activeQuizTier = targetTier;
+  const panel = document.getElementById('monitor-assessment-panel');
+  const container = document.getElementById('quiz-question-container');
+  const msgEl = document.getElementById('quiz-result-msg');
+  
+  msgEl.style.display = "none";
+  panel.style.display = "block";
+  
+  container.innerHTML = QUIZ_QUESTIONS.map(q => `
+    <div style="background: rgba(255,255,255,0.02); padding: 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
+      <p style="font-size: 0.85rem; color: #fff; font-weight: 600; margin: 0 0 10px 0;">${q.question}</p>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        ${q.options.map((opt, idx) => `
+          <label style="display: flex; align-items: flex-start; gap: 8px; font-size: 0.8rem; color: rgba(255,255,255,0.75); cursor: pointer;">
+            <input type="radio" name="q-${q.id}" value="${idx}" style="margin-top: 2px;">
+            <span>${opt}</span>
+          </label>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+  
+  // Wire buttons
+  document.getElementById('quiz-submit-btn').onclick = submitMonitorQuiz;
+  document.getElementById('quiz-cancel-btn').onclick = cancelMonitorQuiz;
+  
+  // Scroll panel into view
+  panel.scrollIntoView({ behavior: 'smooth' });
+}
+
+function submitMonitorQuiz() {
+  const msgEl = document.getElementById('quiz-result-msg');
+  let score = 0;
+  
+  for (const q of QUIZ_QUESTIONS) {
+    const selected = document.querySelector(`input[name="q-${q.id}"]:checked`);
+    if (!selected) {
+      msgEl.textContent = "Please answer all questions before submitting.";
+      msgEl.style.color = "#dc3545";
+      msgEl.style.display = "block";
+      return;
+    }
+    if (parseInt(selected.value) === q.correct) {
+      score++;
+    }
+  }
+  
+  if (score === QUIZ_QUESTIONS.length) {
+    localStorage.setItem('mercury_is_qualified_monitor', 'true');
+    msgEl.textContent = "✔ Congratulations! You passed the Curation Assessment. Curation role unlocked.";
+    msgEl.style.color = "#28a745";
+    msgEl.style.display = "block";
+    
+    setTimeout(() => {
+      // Complete role assignment
+      const targetItem = document.querySelector(`.identity-item[data-tier="${activeQuizTier}"]`);
+      if (targetItem) {
+        document.querySelectorAll('.identity-item').forEach(i => i.classList.remove('active'));
+        targetItem.classList.add('active');
+      }
+      
+      currentUser.tier = activeQuizTier;
+      const names = {
+        'Trustee': 'TrusteeAdmin',
+        'Monitor': 'MonitorEditor'
+      };
+      currentUser.username = names[activeQuizTier];
+      
+      localStorage.setItem('mercury_user_tier', activeQuizTier);
+      localStorage.setItem('mercury_username', currentUser.username);
+      
+      updateProfileUI();
+      syncUserProfileToFirestore();
+      
+      document.getElementById('monitor-assessment-panel').style.display = "none";
+    }, 2000);
+  } else {
+    msgEl.textContent = `❌ Score: ${score}/${QUIZ_QUESTIONS.length}. Assessment failed. Please review standard protocols and try again.`;
+    msgEl.style.color = "#dc3545";
+    msgEl.style.display = "block";
+  }
+}
+
+function cancelMonitorQuiz() {
+  document.getElementById('monitor-assessment-panel').style.display = "none";
+  // Restore active identity view to current user tier
+  updateProfileUI();
 }
