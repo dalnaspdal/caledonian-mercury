@@ -54,6 +54,35 @@ def clean_content(text):
             
     return "\n\n".join(cleaned_lines)
 
+def extract_soup_metadata(html_content):
+    try:
+        from bs4 import BeautifulSoup
+        soup = BeautifulSoup(html_content, 'html.parser')
+        
+        def get_meta(property_name=None, name_name=None):
+            if property_name:
+                tag = soup.find('meta', property=property_name)
+                if tag: return tag.get('content')
+            if name_name:
+                tag = soup.find('meta', attrs={'name': name_name})
+                if tag: return tag.get('content')
+            return None
+
+        title = get_meta(property_name="og:title") or get_meta(name_name="twitter:title")
+        image = get_meta(property_name="og:image") or get_meta(name_name="twitter:image")
+        author = get_meta(name_name="author") or get_meta(property_name="article:author")
+        date = get_meta(property_name="article:published_time") or get_meta(name_name="pubdate")
+        
+        return {
+            "title": title,
+            "image": image,
+            "author": author,
+            "date": date
+        }
+    except Exception as e:
+        print(f"Error in extract_soup_metadata: {e}")
+        return {}
+
 def classify_story(title, content):
     title_lower = title.lower() if title else ""
     content_lower = content.lower() if content else ""
@@ -114,17 +143,25 @@ def scrape_feeds():
                         
                         if result:
                             data = json.loads(result)
+                            soup_meta = extract_soup_metadata(downloaded)
                             
                             raw_text = data.get('text')
                             cleaned = clean_content(raw_text)
-                            category = classify_story(data.get('title') or title, cleaned)
+                            
+                            # Merge BeautifulSoup metadata with Trafilatura extraction
+                            meta_title = soup_meta.get('title') or data.get('title') or title
+                            meta_image = soup_meta.get('image') or data.get('image')
+                            meta_author = soup_meta.get('author') or data.get('author')
+                            meta_date = soup_meta.get('date') or data.get('date') or entry.get('published')
+                            
+                            category = classify_story(meta_title, cleaned)
                             story_data = {
                                 'source': source_name,
                                 'url': url,
-                                'title': data.get('title') or title,
-                                'author': data.get('author'),
-                                'published_date': data.get('date') or entry.get('published'),
-                                'lead_image_url': data.get('image'),
+                                'title': meta_title,
+                                'author': meta_author,
+                                'published_date': meta_date,
+                                'lead_image_url': meta_image,
                                 'content_text': cleaned,
                                 'category': category
                             }
@@ -151,6 +188,8 @@ def scrape_single_url(url):
             result = trafilatura.extract(downloaded, output_format='json', include_comments=False)
             if result:
                 data = json.loads(result)
+                soup_meta = extract_soup_metadata(downloaded)
+                
                 # Determine source name from domain
                 from urllib.parse import urlparse
                 domain = urlparse(url).netloc
@@ -158,15 +197,21 @@ def scrape_single_url(url):
                 
                 raw_text = data.get('text')
                 cleaned = clean_content(raw_text)
-                category = classify_story(data.get('title') or "", cleaned)
+                
+                meta_title = soup_meta.get('title') or data.get('title') or "User Submitted Story"
+                meta_image = soup_meta.get('image') or data.get('image')
+                meta_author = soup_meta.get('author') or data.get('author')
+                meta_date = soup_meta.get('date') or data.get('date')
+                
+                category = classify_story(meta_title, cleaned)
                 
                 return {
                     'source': source_name,
                     'url': url,
-                    'title': data.get('title') or "User Submitted Story",
-                    'author': data.get('author'),
-                    'published_date': data.get('date'),
-                    'lead_image_url': data.get('image'),
+                    'title': meta_title,
+                    'author': meta_author,
+                    'published_date': meta_date,
+                    'lead_image_url': meta_image,
                     'content_text': cleaned,
                     'category': category
                 }
