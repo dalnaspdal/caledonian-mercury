@@ -18,10 +18,6 @@ echo "✔ Found compiled APK. Packaging to ZIP (to bypass Firebase Spark Billing
 rm -f frontend/caledonian-mercury.apk "$ZIP_DEST"
 zip -j "$ZIP_DEST" "$APK_SOURCE"
 
-echo "✔ Packaging Alba Castles source files..."
-rm -f frontend/alba-castles.zip
-zip -r frontend/alba-castles.zip alba-castles/frontend
-
 echo "✔ Deploying updated PWA web app and packaged ZIPs to Firebase..."
 firebase deploy --only hosting
 
