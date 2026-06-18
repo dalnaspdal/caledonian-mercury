@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alba Castles: Scotland Guide</title>
+  
+  <!-- Premium Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,600;0,800;1,600&display=swap" rel="stylesheet">
+  
+  <!-- Leaflet Map Assets -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0d2c1d">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Ambient Highland Gradients -->
+  <div class="ambient-glow"></div>
+  
+  <!-- App Shell -->
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-branding">
+        <span class="header-shield">🛡️</span>
+        <h1>Alba Castles</h1>
+      </div>
+      
+      <!-- Offline Warning Badge -->
+      <div id="offline-badge" class="offline-badge" style="display: none;">
+        <span>📡 Offline Mode</span>
+      </div>
+    </header>
+    
+    <!-- Primary Tab Content Area -->
+    <main id="main-content" class="tab-content">
+      <!-- 1. DISCOVER TAB -->
+      <section id="tab-discover" class="tab-panel active">
+        <div class="discover-feed-header">
+          <h2>Explore Historic Fortresses</h2>
+          <p>Tap a castle to view historical guides, accessibility maps, and citizen reviews.</p>
+        </div>
+        <div id="castle-feed" class="castle-feed-grid">
+          <!-- Populated by app.js -->
+        </div>
+      </section>
+      
+      <!-- 2. MAP TAB -->
+      <section id="tab-map" class="tab-panel">
+        <div id="map-container"></div>
+      </section>
+      
+      <!-- 3. JOURNEY TAB -->
+      <section id="tab-journey" class="tab-panel">
+        <div class="journey-header">
+          <h2>My Highland Journey</h2>
+          <p>Keep track of the castles you've conquered and want to visit.</p>
+        </div>
+        
+        <div class="journey-section">
+          <h3>Visited Castles (Conquered)</h3>
+          <div id="journey-visited-list" class="journey-list">
+            <!-- Visited Castles list -->
+          </div>
+        </div>
+        
+        <div class="journey-section" style="margin-top: 25px;">
+          <h3>Bucket List (Saved)</h3>
+          <div id="journey-saved-list" class="journey-list">
+            <!-- Saved Castles list -->
+          </div>
+        </div>
+      </section>
+    </main>
+    
+    <!-- Navigation Dock -->
+    <nav class="navigation-dock">
+      <button class="dock-btn active" data-tab="discover">
+        <span class="dock-icon">🏰</span>
+        <span class="dock-label">Discover</span>
+      </button>
+      <button class="dock-btn" data-tab="map" id="map-tab-btn">
+        <span class="dock-icon">🗺️</span>
+        <span class="dock-label">Map</span>
+      </button>
+      <button class="dock-btn" data-tab="journey">
+        <span class="dock-icon">🛡️</span>
+        <span class="dock-label">My Journey</span>
+      </button>
+    </nav>
+  </div>
+  
+  <!-- Slide-up Castle Guide Overlay -->
+  <div id="guide-overlay" class="guide-overlay">
+    <div class="guide-scroll-container">
+      <!-- Top header with back button and hero image -->
+      <div class="guide-hero-section">
+        <button id="close-guide-btn" class="guide-close-btn">✕ Close</button>
+        <img id="guide-hero-img" src="assets/castle_hero.png" alt="Castle Hero">
+        <div class="guide-hero-vignette"></div>
+        <div class="guide-hero-title-container">
+          <span id="guide-category-badge" class="category-badge">Ruin</span>
+          <h2 id="guide-title">Dunnottar Castle</h2>
+          <p id="guide-region">Stonehaven, Aberdeenshire</p>
+        </div>
+      </div>
+      
+      <!-- Content section -->
+      <div class="guide-body-content">
+        <!-- Interactive Actions Row -->
+        <div class="guide-quick-actions">
+          <button id="guide-btn-visited" class="action-pill">
+            <span class="pill-icon">🚩</span> <span id="visited-text">Mark Visited</span>
+          </button>
+          <button id="guide-btn-bookmark" class="action-pill">
+            <span class="pill-icon">⭐</span> <span id="bookmark-text">Save to List</span>
+          </button>
+        </div>
+        
+        <!-- History & Legends -->
+        <div class="guide-info-card">
+          <h3>Historic Legends & Lore</h3>
+          <p id="guide-description">A dramatic clifftop fortress perched on a rocky headland in northeastern Scotland. Dunnottar was the home of the Earls Marischal and hid the Scottish Crown Jewels from Cromwell's invading army.</p>
+        </div>
+        
+        <!-- Practical Travel Intel -->
+        <div class="guide-info-card travel-intel">
+          <h3>Essential Travel Intel</h3>
+          <div class="intel-grid">
+            <div class="intel-item">
+              <span class="intel-label">Parking:</span>
+              <span id="guide-parking" class="intel-val">Available (Steep path to castle entrance)</span>
+            </div>
+            <div class="intel-item">
+              <span class="intel-label">Best Photo Spot:</span>
+              <span id="guide-photo-spot" class="intel-val">Clifftop pathway from the north</span>
+            </div>
+            <div class="intel-item">
+              <span class="intel-label">Admission:</span>
+              <span id="guide-admission" class="intel-val">Ticketed (£10.50 adult)</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Reviews Section -->
+        <div class="guide-info-card reviews-card">
+          <h3>Citizen Reviews & Tips</h3>
+          
+          <!-- Review input form -->
+          <form id="review-form" class="review-form">
+            <div style="display: flex; gap: 10px; margin-bottom: 8px;">
+              <input type="text" id="review-author" placeholder="Your Name" required class="review-input">
+              <select id="review-rating" class="review-select" required>
+                <option value="5">⭐⭐⭐⭐⭐ (5/5)</option>
+                <option value="4">⭐⭐⭐⭐ (4/5)</option>
+                <option value="3">⭐⭐⭐ (3/5)</option>
+                <option value="2">⭐⭐ (2/5)</option>
+                <option value="1">⭐ (1/5)</option>
+              </select>
+            </div>
+            <textarea id="review-text" placeholder="Share travel tips, path conditions, or historical tidbits..." required class="review-textarea"></textarea>
+            <button type="submit" class="review-submit-btn">Post Review</button>
+          </form>
+          
+          <div id="reviews-list" class="reviews-list">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="app.js"></script>
+</body>
+</html>

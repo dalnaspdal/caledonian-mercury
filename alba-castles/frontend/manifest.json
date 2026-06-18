@@ -1,0 +1,18 @@
+{
+  "name": "Alba Castles: Scotland Guide",
+  "short_name": "Alba Castles",
+  "description": "Explore the mystical castles of Scotland with offline guide details and reviews.",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#0a1912",
+  "theme_color": "#0d2c1d",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "assets/castle_hero.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
