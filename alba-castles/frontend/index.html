@@ -33,9 +33,16 @@
         <h1>Alba Castles</h1>
       </div>
       
-      <!-- Offline Warning Badge -->
-      <div id="offline-badge" class="offline-badge" style="display: none;">
-        <span>📡 Offline Mode</span>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <!-- Offline Warning Badge -->
+        <div id="offline-badge" class="offline-badge" style="display: none;">
+          <span>📡 Offline Mode</span>
+        </div>
+
+        <!-- Install Button -->
+        <button id="install-app-btn" class="header-install-btn" title="Download Options">
+          <span>📥</span> Install
+        </button>
       </div>
     </header>
     
@@ -177,6 +184,37 @@
     </div>
   </div>
   
+  <!-- App Install Guide Overlay -->
+  <div id="install-overlay" class="guide-overlay" style="height: auto; max-height: 80%; padding-bottom: 25px; border-top-left-radius: 20px; border-top-right-radius: 20px;">
+    <div style="padding: 22px 20px; display: flex; flex-direction: column; gap: 18px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px;">
+        <h3 style="font-family: 'Playfair Display', serif; font-size: 1.35rem; color: #fff; display: flex; align-items: center; gap: 8px;">🛡️ Alba Castles Setup</h3>
+        <button id="close-install-btn" style="background: none; border: none; color: rgba(245, 247, 246, 0.5); font-size: 1.25rem; cursor: pointer; padding: 4px;">✕</button>
+      </div>
+
+      <div>
+        <h4 style="font-size: 0.95rem; color: var(--accent-gold); margin-bottom: 6px; font-weight: 600;">Option 1: Native PWA Install (Recommended)</h4>
+        <p style="font-size: 0.82rem; color: rgba(245, 247, 246, 0.65); line-height: 1.45;">
+          Installs directly to your home screen, runs full-screen, and maintains offline travel data without using system storage.
+        </p>
+        <p style="font-size: 0.78rem; color: rgba(245, 247, 246, 0.45); line-height: 1.4; margin-top: 6px;">
+          👉 <strong>Android (Chrome)</strong>: Tap the top right menu (⋮) and choose "Install App" or "Add to Home Screen".<br>
+          👉 <strong>iOS (Safari)</strong>: Tap the Share button (📤) at the bottom and choose "Add to Home Screen".
+        </p>
+      </div>
+
+      <div style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 15px;">
+        <h4 style="font-size: 0.95rem; color: var(--accent-gold); margin-bottom: 6px; font-weight: 600;">Option 2: Offline Source Code ZIP</h4>
+        <p style="font-size: 0.82rem; color: rgba(245, 247, 246, 0.65); line-height: 1.45; margin-bottom: 12px;">
+          For travel partners or offline testing, download the raw web guide package (includes static maps & data):
+        </p>
+        <a href="/alba-castles.zip" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; padding: 12px 18px; border: 1px solid rgba(255, 255, 255, 0.15); width: 100%; color: #fff; border-radius: 8px; background: rgba(255, 255, 255, 0.05); font-weight: 600; transition: all 0.2s ease; font-size: 0.85rem;">
+          <span>📦</span> Download Source Bundle (.zip)
+        </a>
+      </div>
+    </div>
+  </div>
+
   <script src="app.js"></script>
 </body>
 </html>

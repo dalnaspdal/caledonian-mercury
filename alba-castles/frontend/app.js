@@ -377,6 +377,15 @@ function setupGuideListeners() {
     document.getElementById("review-text").value = "";
     renderReviews();
   });
+
+  // Install App Trigger Listeners
+  document.getElementById("install-app-btn").addEventListener("click", () => {
+    document.getElementById("install-overlay").classList.add("open");
+  });
+
+  document.getElementById("close-install-btn").addEventListener("click", () => {
+    document.getElementById("install-overlay").classList.remove("open");
+  });
 }
 
 // --- REVIEW PERSISTENCE / QUEUE LOGIC ---
