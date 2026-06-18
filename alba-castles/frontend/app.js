@@ -8,6 +8,19 @@ const CASTLES_DATA = [
     lng: -2.1972,
     category: "ruin",
     rating: 4.9,
+    valuation: "£38,000,000",
+    dungeons: 4,
+    beds: 0,
+    moats: 1,
+    acres: 3,
+    filmCredits: ["Hamlet (1990)", "Victor Frankenstein (2015)", "Brave (2012 Inspiration)"],
+    trumpStats: {
+      age: { rating: 4, stat: "Built c. 1200 (800 yrs old)" },
+      defensibility: { rating: 5, stat: "160ft Shear Cliffs & Drawbridge" },
+      lore: { rating: 5, stat: "Safehouse for the Scottish Crown Jewels" },
+      repair: { rating: 2, stat: "Unroofed Historic Ruin" },
+      livability: { rating: 1, stat: "No roof, cold sea winds, no heating" }
+    },
     description: "A dramatic clifftop fortress perched on a rocky headland in northeastern Scotland. Dunnottar was the home of the Earls Marischal and hid the Scottish Crown Jewels from Oliver Cromwell's invading army.",
     parking: "Available (requires a steep 15-minute clifftop walk to the entrance)",
     photoSpot: "The northern coastal path at sunset, highlighting the dramatic drop",
@@ -25,6 +38,19 @@ const CASTLES_DATA = [
     lng: -5.5161,
     category: "fortress",
     rating: 4.8,
+    valuation: "£65,000,000",
+    dungeons: 1,
+    beds: 12,
+    moats: 1,
+    acres: 1,
+    filmCredits: ["Highlander (1986)", "James Bond: The World Is Not Enough (1999)", "Loch Ness (1996)"],
+    trumpStats: {
+      age: { rating: 4, stat: "Built c. 1220 (Rebuilt 1932)" },
+      defensibility: { rating: 4, stat: "Island fortress with single bridge access" },
+      lore: { rating: 4, stat: "Jacobite stronghold blown up by Royal Navy" },
+      repair: { rating: 5, stat: "Fully restored 20th-century interior" },
+      livability: { rating: 4, stat: "Cozy timber ceilings, modern electrical grid" }
+    },
     description: "One of the most iconic images of Scotland, situated on an island where three sea lochs meet. Originally built in the 13th century, it was destroyed during the Jacobite rising and fully rebuilt in the 20th century.",
     parking: "Spacious parking lot directly at the visitor center (easy access)",
     photoSpot: "From the shore just south of the bridge, capturing the reflection in the loch",
@@ -41,6 +67,19 @@ const CASTLES_DATA = [
     lng: -3.2008,
     category: "royal",
     rating: 4.7,
+    valuation: "£350,000,000",
+    dungeons: 6,
+    beds: 50,
+    moats: 0,
+    acres: 10,
+    filmCredits: ["Entrapment (1999)", "One Day (2011)", "Outlander (Inspiration)"],
+    trumpStats: {
+      age: { rating: 5, stat: "Built c. 1130 (900 yrs old)" },
+      defensibility: { rating: 5, stat: "Volcanic rock core, sheer drops on 3 sides" },
+      lore: { rating: 5, stat: "Underwent 26 historical sieges" },
+      repair: { rating: 5, stat: "Impeccable structural maintenance" },
+      livability: { rating: 3, stat: "Cold stone walls, high military security" }
+    },
     description: "A historic fortress which dominates the skyline of Edinburgh from its position on Castle Rock. It has served as a royal residence, military stronghold, prison, and home to the Honours of Scotland.",
     parking: "No parking at the castle. Use city center park & rides or public transit",
     photoSpot: "The Vennel Steps in Grassmarket, framing the castle towering above",
@@ -57,6 +96,19 @@ const CASTLES_DATA = [
     lng: -3.9479,
     category: "royal",
     rating: 4.8,
+    valuation: "£280,000,000",
+    dungeons: 3,
+    beds: 35,
+    moats: 1,
+    acres: 6,
+    filmCredits: ["Braveheart (1995)", "The Outlaw King (2018)", "The Kid in King Arthur's Court (1995)"],
+    trumpStats: {
+      age: { rating: 4, stat: "Built c. 1110 (Reconstructed c. 1500)" },
+      defensibility: { rating: 5, stat: "High volcanic crag overlook" },
+      lore: { rating: 5, stat: "Coronation site of Mary Queen of Scots" },
+      repair: { rating: 5, stat: "Fully restored Renaissance Palace rooms" },
+      livability: { rating: 5, stat: "Royal chambers, monumental fireplaces" }
+    },
     description: "One of the largest and most important castles in Scotland, both historically and architecturally. Perched atop Castle Hill, it was the childhood home of Mary, Queen of Scots, and the coronation site of many monarchs.",
     parking: "Limited parking on-site (£4 for 4 hours)",
     photoSpot: "The esplanade looking north towards the Wallace Monument",
@@ -119,7 +171,13 @@ function renderFeed() {
       <div class="castle-card-body">
         <h3 class="castle-card-title">${castle.title}</h3>
         <p class="castle-card-subtitle">${castle.region}</p>
-        <p class="castle-card-snippet">${castle.description.substring(0, 105)}...</p>
+        <div class="castle-card-value">${castle.valuation}</div>
+        <div class="castle-card-metrics">
+          <span>🏰 ${castle.dungeons} Dung</span> • 
+          <span>🛏️ ${castle.beds} Beds</span> • 
+          <span>🌊 ${castle.moats} Moat</span> • 
+          <span>📐 ${castle.acres} Ac</span>
+        </div>
       </div>
     `;
     feedGrid.appendChild(card);
@@ -215,11 +273,10 @@ function initMap() {
     zoomControl: false
   }).setView([56.55, -4.2], 7);
 
-  // Add custom premium dark-theme tile layers (CartoDB Dark Matter)
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-    subdomains: 'abcd',
-    maxZoom: 20
+  // Add premium high-resolution satellite imagery tiles (Esri World Imagery)
+  L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
+    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, USDA, USGS, and the GIS User Community',
+    maxZoom: 19
   }).addTo(map);
 
   // Add Custom Pins
@@ -252,6 +309,46 @@ function openGuide(castleId) {
   document.getElementById("guide-parking").innerText = castle.parking;
   document.getElementById("guide-photo-spot").innerText = castle.photoSpot;
   document.getElementById("guide-admission").innerText = castle.admission;
+
+  // Real Estate Specs
+  document.getElementById("guide-valuation").innerText = castle.valuation;
+  document.getElementById("guide-dungeons").innerText = `${castle.dungeons} Dungeons`;
+  document.getElementById("guide-beds").innerText = `${castle.beds} Beds`;
+  document.getElementById("guide-moats").innerText = `${castle.moats} Moats`;
+  document.getElementById("guide-acres").innerText = `${castle.acres} Acres`;
+
+  // Trump Stats Bars, Ratings, and Stat Texts
+  const trump = castle.trumpStats;
+  document.getElementById("trump-age").style.width = `${(trump.age.rating / 5) * 100}%`;
+  document.getElementById("trump-age-val").innerText = `${trump.age.rating}/5`;
+  document.getElementById("trump-age-stat").innerText = trump.age.stat;
+  
+  document.getElementById("trump-defensibility").style.width = `${(trump.defensibility.rating / 5) * 100}%`;
+  document.getElementById("trump-defensibility-val").innerText = `${trump.defensibility.rating}/5`;
+  document.getElementById("trump-defensibility-stat").innerText = trump.defensibility.stat;
+  
+  document.getElementById("trump-lore").style.width = `${(trump.lore.rating / 5) * 100}%`;
+  document.getElementById("trump-lore-val").innerText = `${trump.lore.rating}/5`;
+  document.getElementById("trump-lore-stat").innerText = trump.lore.stat;
+  
+  document.getElementById("trump-repair").style.width = `${(trump.repair.rating / 5) * 100}%`;
+  document.getElementById("trump-repair-val").innerText = `${trump.repair.rating}/5`;
+  document.getElementById("trump-repair-stat").innerText = trump.repair.stat;
+  
+  document.getElementById("trump-livability").style.width = `${(trump.livability.rating / 5) * 100}%`;
+  document.getElementById("trump-livability-val").innerText = `${trump.livability.rating}/5`;
+  document.getElementById("trump-livability-stat").innerText = trump.livability.stat;
+
+  // Film & TV Credits
+  const filmContainer = document.getElementById("guide-film-credits");
+  filmContainer.innerHTML = "";
+  if (castle.filmCredits && castle.filmCredits.length > 0) {
+    castle.filmCredits.forEach(credit => {
+      filmContainer.innerHTML += `<span class="film-credit-badge">🎬 ${credit}</span>`;
+    });
+  } else {
+    filmContainer.innerHTML = `<span style="font-size: 0.8rem; color: var(--text-muted);">No recorded screen appearances.</span>`;
+  }
 
   const categoryBadge = document.getElementById("guide-category-badge");
   categoryBadge.className = `category-badge ${castle.category}`;

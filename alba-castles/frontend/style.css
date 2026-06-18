@@ -258,6 +258,10 @@ body {
   z-index: 1;
 }
 
+#map-container .leaflet-tile-container {
+  filter: brightness(0.65) contrast(1.1) saturate(0.8) sepia(0.05) hue-rotate(50deg);
+}
+
 /* Custom premium styles for Leaflet elements */
 .leaflet-container {
   background-color: var(--bg-dark) !important;
@@ -745,3 +749,170 @@ body {
   transform: scale(0.95);
   background: rgba(212, 163, 92, 0.15);
 }
+
+/* --- LUXURY BROCHURE & TRUMP CARDS STYLING --- */
+
+/* Castle Card real estate metrics line */
+.castle-card-metrics {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  border-top: 1px dashed rgba(255, 255, 255, 0.05);
+  padding-top: 8px;
+  margin-top: 5px;
+}
+
+.castle-card-value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--accent-gold);
+  margin-top: 2px;
+}
+
+/* Brochure Specs Row */
+.guide-specs-row {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.spec-price {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.spec-price-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+}
+
+.spec-price-value {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #fff;
+  background: linear-gradient(135deg, #fff, var(--accent-gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.spec-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.spec-badge {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 6px 12px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--text-light);
+}
+
+.spec-badge-icon {
+  font-size: 0.9rem;
+}
+
+/* Trump Card Progress Bars */
+.trump-stats-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.trump-stat-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.trump-stat-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-light);
+  width: 110px;
+  flex-shrink: 0;
+}
+
+.trump-bar-outer {
+  flex: 1;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+.trump-bar-inner {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(to right, rgba(212, 163, 92, 0.6), var(--accent-gold));
+  box-shadow: 0 0 8px rgba(212, 163, 92, 0.4);
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.trump-stat-val {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent-gold);
+  width: 30px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* Film Credits TV & Cinema Badges */
+.film-credits-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 5px;
+}
+
+.film-credit-badge {
+  background: rgba(212, 163, 92, 0.06);
+  border: 1px solid rgba(212, 163, 92, 0.15);
+  color: var(--accent-gold);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.trump-stat-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background: rgba(255, 255, 255, 0.01);
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.trump-stat-text {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  padding-left: 122px;
+  font-style: italic;
+  margin-top: 1px;
+}
+
