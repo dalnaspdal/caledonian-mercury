@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mercury-v2';
+const CACHE_NAME = 'mercury-v3';
 const ASSETS = [
   '/',
   '/index.html',
