@@ -244,12 +244,19 @@
       </div>
       
       <!-- Direct APK Download for Testers -->
-      <div style="border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: 20px; padding-top: 15px; text-align: center;">
-        <p style="font-size: 0.85rem; color: rgba(255, 255, 255, 0.5); margin-bottom: 5px;">Direct Android installation:</p>
-        <p style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.35); margin-bottom: 10px;">Download, unzip, and tap the APK to install.</p>
-        <a href="caledonian-mercury.zip" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; padding: 12px 20px; border: 1px solid rgba(255, 255, 255, 0.15); width: auto; color: #fff; border-radius: 8px; background: rgba(255, 255, 255, 0.05); font-weight: 600; transition: all 0.2s ease; font-size: 0.9rem;">
-          <span>📦</span> Download Android App (.zip)
-        </a>
+      <div style="border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: 20px; padding-top: 15px; text-align: center; display: flex; flex-direction: column; gap: 8px; align-items: center;">
+        <p style="font-size: 0.85rem; color: rgba(255, 255, 255, 0.5); margin-bottom: 0;">Android App Installation:</p>
+        
+        <div style="display: flex; gap: 8px; justify-content: center; width: 100%; max-width: 320px;">
+          <!-- GitHub raw APK download -->
+          <a href="https://github.com/dalnaspdal/caledonian-mercury/releases" target="_blank" style="flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; padding: 10px 12px; border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; border-radius: 8px; background: rgba(255, 255, 255, 0.05); font-weight: 600; transition: all 0.2s ease; font-size: 0.8rem;">
+            <span>🤖</span> Raw APK (GitHub)
+          </a>
+          <!-- Local hosted ZIP download -->
+          <a href="caledonian-mercury.zip" style="flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; padding: 10px 12px; border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; border-radius: 8px; background: rgba(255, 255, 255, 0.05); font-weight: 600; transition: all 0.2s ease; font-size: 0.8rem;">
+            <span>📦</span> ZIP Bundle
+          </a>
+        </div>
       </div>
       
       <div class="modal-actions">
