@@ -13,7 +13,6 @@ const CASTLES_DATA = [
     beds: 0,
     moats: 1,
     acres: 3,
-    youtubeId: "SZs3wf9GZ3g",
     filmCredits: ["Hamlet (1990)", "Victor Frankenstein (2015)", "Brave (2012 Inspiration)"],
     trumpStats: {
       age: { rating: 4, stat: "Built c. 1200 (800 yrs old)" },
@@ -44,7 +43,6 @@ const CASTLES_DATA = [
     beds: 12,
     moats: 1,
     acres: 1,
-    youtubeId: "26grf1oHhPk",
     filmCredits: ["Highlander (1986)", "James Bond: The World Is Not Enough (1999)", "Loch Ness (1996)"],
     trumpStats: {
       age: { rating: 4, stat: "Built c. 1220 (Rebuilt 1932)" },
@@ -74,7 +72,6 @@ const CASTLES_DATA = [
     beds: 50,
     moats: 0,
     acres: 10,
-    youtubeId: "wP3uD77lM5w",
     filmCredits: ["Entrapment (1999)", "One Day (2011)", "Outlander (Inspiration)"],
     trumpStats: {
       age: { rating: 5, stat: "Built c. 1130 (900 yrs old)" },
@@ -104,7 +101,6 @@ const CASTLES_DATA = [
     beds: 35,
     moats: 1,
     acres: 6,
-    youtubeId: "qXFqNfSgRyo",
     filmCredits: ["Braveheart (1995)", "The Outlaw King (2018)", "The Kid in King Arthur's Court (1995)"],
     trumpStats: {
       age: { rating: 4, stat: "Built c. 1110 (Reconstructed c. 1500)" },
@@ -354,17 +350,6 @@ function openGuide(castleId) {
     filmContainer.innerHTML = `<span style="font-size: 0.8rem; color: var(--text-muted);">No recorded screen appearances.</span>`;
   }
 
-  // Cinematic Video Tour Setup
-  const videoCard = document.querySelector(".video-card");
-  const videoIframe = document.getElementById("guide-video-iframe");
-  if (navigator.onLine && castle.youtubeId) {
-    videoCard.style.display = "block";
-    videoIframe.src = `https://www.youtube.com/embed/${castle.youtubeId}`;
-  } else {
-    videoCard.style.display = "none";
-    videoIframe.src = "";
-  }
-
   const categoryBadge = document.getElementById("guide-category-badge");
   categoryBadge.className = `category-badge ${castle.category}`;
   categoryBadge.innerText = castle.category;
@@ -438,7 +423,6 @@ function renderReviews() {
 function setupGuideListeners() {
   document.getElementById("close-guide-btn").addEventListener("click", () => {
     document.getElementById("guide-overlay").classList.remove("open");
-    document.getElementById("guide-video-iframe").src = ""; // Stop video playback
     renderFeed(); // update average ratings in feed
   });
 
