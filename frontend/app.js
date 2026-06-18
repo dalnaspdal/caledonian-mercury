@@ -47,7 +47,20 @@ window.addEventListener('DOMContentLoaded', () => {
   setupMockAuth();
   setupEventListeners();
   registerServiceWorker();
+  
+  // Fallback timeout: dismiss splash screen after 5 seconds if connection is slow
+  setTimeout(dismissSplash, 5000);
 });
+
+function dismissSplash() {
+  const splash = document.getElementById("app-splash");
+  if (splash && !splash.classList.contains("fade-out")) {
+    splash.classList.add("fade-out");
+    setTimeout(() => {
+      splash.style.display = "none";
+    }, 500);
+  }
+}
 
 // 1. Authentication & Identity Management
 function setupMockAuth() {
@@ -164,6 +177,7 @@ function loadFeed() {
     
     if (snapshot.empty) {
       renderEmptyState();
+      dismissSplash();
       return;
     }
     
@@ -202,6 +216,7 @@ function loadFeed() {
     
     if (renderedCount === 0) {
       renderEmptyState();
+      dismissSplash();
       return;
     }
     
@@ -216,6 +231,7 @@ function loadFeed() {
     feedContainer.appendChild(endCard);
     
     setupGestureListeners();
+    dismissSplash();
   }, (error) => {
     console.error("Firestore feed snapshot error:", error);
     feedContainer.innerHTML = `
@@ -225,6 +241,7 @@ function loadFeed() {
         <p>Ensure your Firebase Firestore database is initialized and credentials in firebase-config.js are correct.</p>
       </div>
     `;
+    dismissSplash();
   });
 }
 

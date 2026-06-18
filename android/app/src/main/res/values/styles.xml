@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Starting theme for the splash screen -->
+    <style name="AppTheme.Starting" parent="Theme.SplashScreen">
+        <!-- Set the splash screen background color (dark slate blue) -->
+        <item name="windowSplashScreenBackground">#0b0f19</item>
+        
+        <!-- Set the splash screen icon (our custom thistle launcher icon) -->
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        
+        <!-- Set the post-splash screen theme (the actual app theme) -->
+        <item name="postSplashScreenTheme">@style/AppTheme</item>
+    </style>
+
+    <!-- Main application theme -->
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+        <!-- Customize your theme here if needed -->
+        <item name="android:windowBackground">#0b0f19</item>
+    </style>
+</resources>

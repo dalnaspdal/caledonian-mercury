@@ -1078,4 +1078,76 @@ body, html {
   box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 
+/* PWA App Splash Screen */
+.app-splash-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #0b0f19; /* premium deep dark background */
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 1;
+  transition: opacity 0.5s ease;
+}
+
+.app-splash-overlay.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.splash-content {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.splash-logo {
+  width: 120px;
+  height: 120px;
+  border-radius: 28px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 1px 1px rgba(255, 255, 255, 0.1);
+  animation: splashPulse 2s infinite ease-in-out;
+}
+
+.splash-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 26px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+.splash-spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid rgba(212, 175, 55, 0.1);
+  border-top: 3px solid var(--accent-gold, #d4af37);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-top: 10px;
+}
+
+@keyframes splashPulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 5px rgba(212, 175, 55, 0.2));
+  }
+  50% {
+    transform: scale(1.03);
+    filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.5));
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 

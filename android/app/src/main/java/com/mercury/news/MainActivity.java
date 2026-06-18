@@ -7,10 +7,12 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.splashscreen.SplashScreen;
 
 public class MainActivity extends AppCompatActivity {
 
     private WebView mWebView;
+    private boolean mPageLoaded = false;
     // Replace with your active Firebase Hosting URL
     private static final String TARGET_URL = "https://caledonian-mercury-app.web.app";
     // Dev fallback: local network dev server
@@ -19,7 +21,13 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Install AndroidX SplashScreen API before super.onCreate()
+        SplashScreen splashScreen = SplashScreen.installSplashScreen(this);
+
         super.onCreate(savedInstanceState);
+
+        // Keep native splash visible until WebView finishes rendering
+        splashScreen.setKeepOnScreenCondition(() -> !mPageLoaded);
 
         // Programmatically generate WebView layout for lightweight footprint
         mWebView = new WebView(this);
@@ -46,7 +54,16 @@ public class MainActivity extends AppCompatActivity {
                 view.loadUrl(url);
                 return true;
             }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                mPageLoaded = true;
+            }
         });
+
+        // Safety fallback: dismiss native splash after 4 seconds regardless of load state
+        mWebView.postDelayed(() -> mPageLoaded = true, 4000);
 
         // Load targeted application
         mWebView.loadUrl(TARGET_URL);

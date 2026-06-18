@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="manifest" href="manifest.json">
-  <link rel="icon" type="image/jpeg" href="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=192&h=192&fit=crop&q=80">
+  <link rel="icon" type="image/png" href="assets/icon-192.png">
   
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,6 +19,15 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- PWA App Splash Screen -->
+  <div id="app-splash" class="app-splash-overlay">
+    <div class="splash-content">
+      <img src="assets/icon-512.png" alt="Caledonian Mercury Logo" class="splash-logo">
+      <h1 class="splash-title">Caledonian Mercury</h1>
+      <div class="splash-spinner"></div>
+    </div>
+  </div>
+
   <!-- Background Noise & Gradients -->
   <div class="glow-bg"></div>
   
